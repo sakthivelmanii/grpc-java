@@ -39,8 +39,10 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -95,6 +97,12 @@ abstract class RetriableStream<ReqT> implements ClientStream {
   private final Throttle throttle;
   @GuardedBy("lock")
   private final InsightBuilder closedSubstreamsInsight = new InsightBuilder();
+
+  private static final Set<String> ALLOWED_METHODS = new HashSet<>();
+  static {
+    ALLOWED_METHODS.add("google.spanner.v1.Spanner/ExecuteStreamingSql");
+    ALLOWED_METHODS.add("google.spanner.v1.Spanner/StreamingRead");
+  }
 
   private volatile State state = new State(
       new ArrayList<BufferEntry>(8), Collections.<Substream>emptyList(), null, null, false, false,
@@ -579,6 +587,9 @@ abstract class RetriableStream<ReqT> implements ClientStream {
     class SendMessageEntry implements BufferEntry {
       @Override
       public void runWith(Substream substream) {
+        if(ALLOWED_METHODS.contains(RetriableStream.this.method.getFullMethodName())) {
+          PerformanceHandler.BEFORE_SEND_PAYLOAD.stop();
+        }
         substream.stream.writeMessage(method.streamRequest(message));
         // TODO(ejona): Workaround Netty memory leak. Message writes always need to be followed by
         // flushes (or half close), but retry appears to have a code path that the flushes may

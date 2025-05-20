@@ -260,6 +260,7 @@ public class MessageDeframer implements Closeable, Deframer {
   private void deliver() {
     // We can have reentrancy here when using a direct executor, triggered by calls to
     // request more messages. This is safe as we simply loop until pendingDelivers = 0
+    PerformanceHandler.BEFORE_REQUEST_DATA.stop();
     if (inDelivery) {
       return;
     }
