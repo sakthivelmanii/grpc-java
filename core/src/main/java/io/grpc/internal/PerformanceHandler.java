@@ -16,6 +16,7 @@ public class PerformanceHandler {
   // Request overheads
   public static PerformanceHandler OVERALL_REQUEST_OVERHEAD = new PerformanceHandler();
   public static PerformanceHandler CLIENT_REQUEST_OVERHEAD = new PerformanceHandler();
+  public static PerformanceHandler AFTER_GRPC_CLIENT_OVERHEAD = new PerformanceHandler();
   public static PerformanceHandler GRPC_REQUEST_OVERHEAD = new PerformanceHandler();
 
   // Response overheads
@@ -57,6 +58,7 @@ public class PerformanceHandler {
 
   public static void resetAll() {
     OVERALL_REQUEST_OVERHEAD.reset();
+    AFTER_GRPC_CLIENT_OVERHEAD.reset();
     CLIENT_REQUEST_OVERHEAD.reset();
     GRPC_REQUEST_OVERHEAD.reset();
 
