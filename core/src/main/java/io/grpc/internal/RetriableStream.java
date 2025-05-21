@@ -98,12 +98,6 @@ abstract class RetriableStream<ReqT> implements ClientStream {
   @GuardedBy("lock")
   private final InsightBuilder closedSubstreamsInsight = new InsightBuilder();
 
-  private static final Set<String> ALLOWED_METHODS = new HashSet<>();
-  static {
-    ALLOWED_METHODS.add("google.spanner.v1.Spanner/ExecuteStreamingSql");
-    ALLOWED_METHODS.add("google.spanner.v1.Spanner/StreamingRead");
-  }
-
   private volatile State state = new State(
       new ArrayList<BufferEntry>(8), Collections.<Substream>emptyList(), null, null, false, false,
       false, 0);
@@ -587,14 +581,17 @@ abstract class RetriableStream<ReqT> implements ClientStream {
     class SendMessageEntry implements BufferEntry {
       @Override
       public void runWith(Substream substream) {
-        if(ALLOWED_METHODS.contains(RetriableStream.this.method.getFullMethodName())) {
-          PerformanceHandler.BEFORE_SEND_PAYLOAD.stop();
-        }
         substream.stream.writeMessage(method.streamRequest(message));
         // TODO(ejona): Workaround Netty memory leak. Message writes always need to be followed by
         // flushes (or half close), but retry appears to have a code path that the flushes may
         // not happen. The code needs to be fixed and this removed. See #9340.
         substream.stream.flush();
+
+        // After flushing the data
+        if(PerformanceHandler.ALLOWED_METHODS.contains(RetriableStream.this.method.getFullMethodName())) {
+          PerformanceHandler.GRPC_REQUEST_OVERHEAD.stop();
+          PerformanceHandler.OVERALL_REQUEST_OVERHEAD.stop();
+        }
       }
     }
 

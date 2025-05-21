@@ -33,6 +33,7 @@ import io.grpc.Status;
 import io.grpc.internal.AbstractClientStream;
 import io.grpc.internal.ClientStreamListener.RpcProgress;
 import io.grpc.internal.Http2ClientStreamTransportState;
+import io.grpc.internal.PerformanceHandler;
 import io.grpc.internal.StatsTraceContext;
 import io.grpc.internal.TransportTracer;
 import io.grpc.internal.WritableBuffer;
@@ -352,6 +353,10 @@ class NettyClientStream extends AbstractClientStream {
     }
 
     void transportDataReceived(ByteBuf frame, boolean endOfStream) {
+      if(PerformanceHandler.ALLOWED_METHODS.contains(methodName)) {
+        PerformanceHandler.GRPC_RESPONSE_OVERHEAD.start();
+        PerformanceHandler.OVERALL_RESPONSE_OVERHEAD.start();
+      }
       transportDataReceived(new NettyReadableBuffer(frame.retain()), endOfStream);
     }
 
