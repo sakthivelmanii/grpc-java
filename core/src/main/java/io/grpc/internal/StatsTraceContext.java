@@ -158,6 +158,18 @@ public final class StatsTraceContext {
     }
   }
 
+  public void flushed() {
+    for (StreamTracer tracer : tracers) {
+      tracer.flushed();
+    }
+  }
+
+  public void transportDataReceived() {
+    for (StreamTracer tracer : tracers) {
+      tracer.transportDataReceived();
+    }
+  }
+
   /**
    * See {@link StreamTracer#outboundMessage(int)}.
    *

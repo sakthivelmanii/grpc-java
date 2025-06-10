@@ -32,6 +32,12 @@ public abstract class StreamTracer {
   public void streamClosed(Status status) {
   }
 
+  public void transportDataReceived() {
+  }
+
+  public void flushed() {
+  }
+
   /**
    * An outbound message has been passed to the stream.  This is called as soon as the stream knows
    * about the message, but doesn't have further guarantee such as whether the message is serialized

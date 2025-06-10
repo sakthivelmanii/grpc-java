@@ -236,6 +236,16 @@ final class OpenTelemetryTracingModule {
     public void streamClosed(io.grpc.Status status) {
       endSpanWithStatus(span, status);
     }
+
+    @Override
+    public void flushed() {
+      span.addEvent("Flushed");
+    }
+
+    @Override
+    public void transportDataReceived() {
+      span.addEvent("Transport data received");
+    }
   }
 
   private final class ServerTracer extends ServerStreamTracer {

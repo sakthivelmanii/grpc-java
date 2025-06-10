@@ -309,6 +309,7 @@ public class MessageFramer implements Framer {
     if (buffer != null && buffer.readableBytes() > 0) {
       commitToSink(false, true);
     }
+    statsTraceCtx.flushed();
   }
 
   /**

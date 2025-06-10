@@ -221,6 +221,7 @@ class NettyClientStream extends AbstractClientStream {
     private int id;
     private Http2Stream http2Stream;
     private Tag tag;
+    private StatsTraceContext statsTraceContext;
 
     protected TransportState(
         NettyClientHandler handler,
@@ -231,6 +232,7 @@ class NettyClientStream extends AbstractClientStream {
         String methodName,
         CallOptions options) {
       super(maxMessageSize, statsTraceCtx, transportTracer, options);
+      this.statsTraceContext = statsTraceCtx;
       this.methodName = checkNotNull(methodName, "methodName");
       this.handler = checkNotNull(handler, "handler");
       this.eventLoop = checkNotNull(eventLoop, "eventLoop");
@@ -356,6 +358,7 @@ class NettyClientStream extends AbstractClientStream {
       if(PerformanceHandler.ALLOWED_METHODS.contains(methodName)) {
         PerformanceHandler.GRPC_RESPONSE_OVERHEAD.start();
         PerformanceHandler.OVERALL_RESPONSE_OVERHEAD.start();
+        statsTraceContext.transportDataReceived();
       }
       transportDataReceived(new NettyReadableBuffer(frame.retain()), endOfStream);
     }
