@@ -621,6 +621,10 @@ abstract class RetriableStream<ReqT> implements ClientStream {
     State savedState = state;
     if (savedState.passThrough) {
       savedState.winningSubstream.stream.flush();
+      if(PerformanceHandler.ALLOWED_METHODS.contains(RetriableStream.this.method.getFullMethodName())) {
+        PerformanceHandler.GRPC_REQUEST_OVERHEAD.stop();
+        PerformanceHandler.OVERALL_REQUEST_OVERHEAD.stop();
+      }
       return;
     }
 

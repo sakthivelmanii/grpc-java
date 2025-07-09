@@ -11,6 +11,7 @@ public class PerformanceHandler {
   static {
     ALLOWED_METHODS.add("google.spanner.v1.Spanner/ExecuteStreamingSql");
     ALLOWED_METHODS.add("google.spanner.v1.Spanner/StreamingRead");
+    ALLOWED_METHODS.add("google.spanner.v1.Spanner/BidiRPC");
   }
 
   // Request overheads
